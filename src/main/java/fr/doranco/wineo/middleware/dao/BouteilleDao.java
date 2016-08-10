@@ -115,8 +115,11 @@ public class BouteilleDao
 	{
 		
 		try
+		
 		{
+			em.getTransaction().begin();
 			em.persist(bouteille);
+			em.getTransaction().commit();
 			return bouteille.getReference();
 		}
 		catch (final EntityExistsException e)
