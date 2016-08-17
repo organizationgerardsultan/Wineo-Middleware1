@@ -19,6 +19,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import fr.doranco.wineo.middleware.objetmetier.bouteille.Bouteille;
@@ -26,12 +27,18 @@ import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleDejaExistanteE
 import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleInexistanteException;
 import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleInvalideException;
 import fr.doranco.wineo.middleware.services.IBouteilleService;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.core.Link.Builder;
+
 
 @WebService
 @Path("/bouteille")
+@Transactional
 public class BouteilleWebService {
 	
-	@EJB
+	@Inject
 	private IBouteilleService bouteilleService;
 
 	@GET
@@ -73,33 +80,33 @@ public class BouteilleWebService {
 	}
 	
 	@POST
-	public Response creerBouteille(
-			@FormParam("contenance") final double contenance,
-			@FormParam("designation") final String designation,
-			@FormParam("annee") final int annee
-	) {
-		
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response creerBouteille(final Bouteille bouteille){			
+                        		
 		/*
 		 * Nous transformons les paramètres d'entrée du WS en un objet métier. 
+		 *  
 		 */
-		final Bouteille bouteille = new Bouteille();
-		bouteille.setAnnee(annee);
-		bouteille.setContenance(contenance);
-		bouteille.setDesignation(designation);
 		
-		Response reponse = null;
+                 ResponseBuilder builder;
 		
+				
 		try
 		{
-			final String reference = bouteilleService.consignerBouteille(bouteille);
-			reponse = Response.ok(reference).build();
+                    final Bouteille bouteilleCree = bouteilleService.creerBouteille(bouteille);
+			final String reference = bouteilleCree.getReference();
+			builder = Response.ok(reference);
+                        
 		}
-		catch (BouteilleDejaExistanteException | BouteilleInvalideException e)
+		catch (BouteilleDejaExistanteException e)
 		{
-			reponse = Response.status(BAD_REQUEST).build();
+			builder = Response.status(BAD_REQUEST);
+                       
 		}
-		
-		return reponse;
+                    
+		return builder.build();
+                
 	}
 	
 	@PUT

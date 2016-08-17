@@ -23,9 +23,11 @@ public interface IBouteilleService {
 	
 	public List<Bouteille> obtenirBouteilles();
 	
-	public String consignerBouteille(final Bouteille bouteille)
-		throws BouteilleInvalideException, BouteilleDejaExistanteException;
+	public Bouteille creerBouteille(final Bouteille bouteille)
+		throws BouteilleDejaExistanteException;
 	
+        
+        
 	public void supprimerBouteille(final String reference)
 		throws BouteilleInexistanteException;
 	

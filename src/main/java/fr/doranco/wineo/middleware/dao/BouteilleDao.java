@@ -1,8 +1,9 @@
 package fr.doranco.wineo.middleware.dao;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import java.util.List;
 
-import javax.ejb.Stateless;
+
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
@@ -17,15 +18,16 @@ import javax.transaction.Transactional;
 import fr.doranco.wineo.middleware.objetmetier.bouteille.Bouteille;
 import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleDejaExistanteException;
 import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleInexistanteException;
+import javax.inject.Named;
 
 /**
  * Un DAO JPA de gestion des bouteilles.
  * 
  * @author Snekkja JFDC
  */
-@Stateless
+@Named
 @Transactional
-public class BouteilleDao
+public class BouteilleDao implements IDao<Bouteille>
 {
 	
 	// Injecte un manageur d'entité construit
@@ -115,12 +117,10 @@ public class BouteilleDao
 	{
 		
 		try
-		
 		{
-			em.getTransaction().begin();
+			
 			em.persist(bouteille);
-			em.getTransaction().commit();
-			return bouteille.getReference();
+                        return bouteille.getReference();
 		}
 		catch (final EntityExistsException e)
 		{
@@ -172,5 +172,19 @@ public class BouteilleDao
 		
 		return resultat;
 	}
+        
 	
+        @Override
+        
+	public Bouteille creer(final Bouteille bouteille) throws  BouteilleDejaExistanteException{
+		checkArgument(bouteille != null);
+
+		try {
+			em.persist(bouteille);
+		} catch (final EntityExistsException e) {
+			throw new BouteilleDejaExistanteException();
+		}
+
+		return bouteille;
+	}
 }

@@ -4,8 +4,6 @@ package fr.doranco.wineo.middleware.services;
 import java.util.List;
 import java.util.function.Predicate;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -17,11 +15,15 @@ import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleInvalideExcept
 import fr.doranco.wineo.middleware.objetmetier.contexte.ContexteConsommation;
 import fr.doranco.wineo.middleware.objetmetier.contexte.ContexteConsommationInvalideException;
 import fr.doranco.wineo.middleware.objetmetier.fournisseur.Fournisseur;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.transaction.Transactional;
 
-@Stateless
+@Named
+@Transactional
 public class BouteilleService implements IBouteilleService {
 	
-	@EJB
+	@Inject
 	private BouteilleDao bouteilleDao;
 	
 	// private CaveService caveService;
@@ -41,17 +43,21 @@ public class BouteilleService implements IBouteilleService {
 		return bouteilleDao.obtenir(reference);
 	}
 	
-	@Override
-	public String consignerBouteille(final Bouteille bouteille) throws BouteilleInvalideException, BouteilleDejaExistanteException {
+	
+	public Bouteille creerBouteille(Bouteille bouteille) throws BouteilleDejaExistanteException {
 
 		/*
 		 * Nous créons une référence unique,
 		 * que nous assignons à notre bouteille.
 		 */
 		bouteille.setReference(RandomStringUtils.randomAlphanumeric(10));
+                
 		
 		// Nous persistons notre bouteille nouvellement crée.
-		return bouteilleDao.persister(bouteille);
+		return bouteilleDao.creer(bouteille);
+                
+                
+                
 	}
 	
 	@Override
