@@ -1,5 +1,6 @@
 package fr.doranco.wineo.middleware.services;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -10,6 +11,7 @@ import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleInvalideExcept
 import fr.doranco.wineo.middleware.objetmetier.contexte.ContexteConsommation;
 import fr.doranco.wineo.middleware.objetmetier.contexte.ContexteConsommationInvalideException;
 import fr.doranco.wineo.middleware.objetmetier.fournisseur.Fournisseur;
+import java.util.Collection;
 
 /**
  * Un contrat d'un service de gestion des bouteilles.
@@ -31,8 +33,15 @@ public interface IBouteilleService {
 	public void supprimerBouteille(final String reference)
 		throws BouteilleInexistanteException;
 	
-	public Bouteille modifierBouteille(final Bouteille bouteille)
+        
+        public Bouteille modifierBouteille(final Bouteille bouteille)
 		throws BouteilleInexistanteException, BouteilleInvalideException;
+	
+        
+        public List<Bouteille> modifierBouteilles(final Collection<Bouteille> bouteilles)
+			throws BouteilleInexistanteException;
+	
+	
 	
 	/**
 	 * Obtenir les bouteilles du catalogue selon une condition discriminante.
@@ -45,6 +54,7 @@ public interface IBouteilleService {
 	public List<Bouteille> obtenirBouteilles(final Predicate<Bouteille> condition)
 			throws IllegalArgumentException;
 	
+        
 	/**
 	 * Vérifier l'existence d'au moins une bouteille répondant à la condition discriminante.
 	 * 

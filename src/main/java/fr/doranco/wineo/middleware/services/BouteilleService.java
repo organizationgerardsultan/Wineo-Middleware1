@@ -1,8 +1,14 @@
 
 package fr.doranco.wineo.middleware.services;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.transaction.Transactional;
+
 
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -15,9 +21,6 @@ import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleInvalideExcept
 import fr.doranco.wineo.middleware.objetmetier.contexte.ContexteConsommation;
 import fr.doranco.wineo.middleware.objetmetier.contexte.ContexteConsommationInvalideException;
 import fr.doranco.wineo.middleware.objetmetier.fournisseur.Fournisseur;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.transaction.Transactional;
 
 @Named
 @Transactional
@@ -43,7 +46,78 @@ public class BouteilleService implements IBouteilleService {
 		return bouteilleDao.obtenir(reference);
 	}
 	
-	
+	@Override
+	public List<Bouteille> obtenirBouteilles() {
+		
+		return bouteilleDao.obtenir();
+	}
+        
+        
+        @Override
+	public void supprimerBouteille(final String reference) throws BouteilleInexistanteException {
+		
+		// Nous retirons la bouteille à supprimer de l'entrepot.
+		bouteilleDao.retirer(reference);
+	}
+        
+        
+        
+        @Override
+	public Bouteille modifierBouteille(final Bouteille bouteille)
+			throws BouteilleInexistanteException, BouteilleInvalideException {
+
+		return bouteilleDao.modifier(bouteille);
+	}
+        
+                
+        
+        @Override
+	public boolean exister(final Predicate<Bouteille> condition) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+        
+        
+        
+        @Override
+	public List<Bouteille> selectionnerBouteilles(final ContexteConsommation contexte)
+			throws IllegalArgumentException, ContexteConsommationInvalideException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+        
+        @Override
+	public List<Bouteille> obtenirBouteillesSemblables(final Bouteille bouteille)
+			throws BouteilleInvalideException, BouteilleInexistanteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+        
+        
+        
+        @Override
+	public List<Fournisseur> obtenirVendeurs(final Bouteille bouteille)
+			throws BouteilleInvalideException, BouteilleInexistanteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+        
+        @Override
+	public List<Bouteille> obtenirBouteilles(Predicate<Bouteille> condition) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+        
+        
+        @Override
+	public List<Bouteille> modifierBouteilles(Collection<Bouteille> bouteilles)
+			throws BouteilleInexistanteException {
+
+		return bouteilleDao.modifier(bouteilles);
+	}
+        
+        
 	public Bouteille creerBouteille(Bouteille bouteille) throws BouteilleDejaExistanteException {
 
 		/*
@@ -60,57 +134,11 @@ public class BouteilleService implements IBouteilleService {
                 
 	}
 	
-	@Override
-	public void supprimerBouteille(final String reference) throws BouteilleInexistanteException {
+	
 		
-		// Nous retirons la bouteille à supprimer de l'entrepot.
-		bouteilleDao.retirer(reference);
-	}
+        
 	
-	@Override
-	public Bouteille modifierBouteille(final Bouteille bouteille)
-			throws BouteilleInexistanteException, BouteilleInvalideException {
-
-		return bouteilleDao.modifier(bouteille);
-	}
 	
-	@Override
-	public List<Bouteille> obtenirBouteilles() {
-		
-		return bouteilleDao.obtenir();
-	}
 	
-	@Override
-	public List<Bouteille> obtenirBouteilles(final Predicate<Bouteille> condition) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean exister(final Predicate<Bouteille> condition) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public List<Bouteille> selectionnerBouteilles(final ContexteConsommation contexte)
-			throws IllegalArgumentException, ContexteConsommationInvalideException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Bouteille> obtenirBouteillesSemblables(final Bouteille bouteille)
-			throws BouteilleInvalideException, BouteilleInexistanteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Fournisseur> obtenirVendeurs(final Bouteille bouteille)
-			throws BouteilleInvalideException, BouteilleInexistanteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

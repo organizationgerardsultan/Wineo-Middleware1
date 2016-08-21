@@ -18,6 +18,8 @@ import javax.transaction.Transactional;
 import fr.doranco.wineo.middleware.objetmetier.bouteille.Bouteille;
 import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleDejaExistanteException;
 import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleInexistanteException;
+import java.util.Collection;
+import java.util.stream.Collectors;
 import javax.inject.Named;
 
 /**
@@ -129,17 +131,7 @@ public class BouteilleDao implements IDao<Bouteille>
 		
 	}
 	
-	public Bouteille modifier(final Bouteille bouteille) throws BouteilleInexistanteException
-	{
-		try
-		{
-			return em.merge(bouteille);
-		}
-		catch (final IllegalArgumentException e)
-		{
-			throw new BouteilleInexistanteException();
-		}
-	}
+	
 	
 	public void retirer(final String reference) throws BouteilleInexistanteException
 	{
@@ -187,4 +179,25 @@ public class BouteilleDao implements IDao<Bouteille>
 
 		return bouteille;
 	}
+        
+        
+       public List<Bouteille> modifier(final Collection<Bouteille> bouteilles)
+			throws BouteilleInexistanteException {
+		checkArgument(bouteilles != null && !bouteilles.isEmpty());
+
+		for (Bouteille bouteille : bouteilles)
+			modifier(bouteille);
+
+		return bouteilles.parallelStream().collect(Collectors.toList());
+	}
+       
+       public Bouteille modifier(final Bouteille bouteille) throws BouteilleInexistanteException {
+		try {
+			return em.merge(bouteille);
+		} catch (final IllegalArgumentException e) {
+			throw new BouteilleInexistanteException();
+		}
+	}
 }
+
+

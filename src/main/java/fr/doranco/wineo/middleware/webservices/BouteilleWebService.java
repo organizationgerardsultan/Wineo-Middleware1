@@ -1,14 +1,18 @@
 package fr.doranco.wineo.middleware.webservices;
 
 import static javax.ws.rs.core.Response.ok;
+import static javax.ws.rs.core.Response.serverError;
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
+import java.util.Collection;
 import java.util.List;
 
-import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.jws.WebService;
+import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -17,6 +21,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -27,10 +32,8 @@ import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleDejaExistanteE
 import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleInexistanteException;
 import fr.doranco.wineo.middleware.objetmetier.bouteille.BouteilleInvalideException;
 import fr.doranco.wineo.middleware.services.IBouteilleService;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.Link.Builder;
+
+
 
 
 @WebService
@@ -110,44 +113,29 @@ public class BouteilleWebService {
 	}
 	
 	@PUT
-	@Produces(value = MediaType.APPLICATION_JSON)
-	public Response modifierBouteille(
-			@FormParam("reference") final String reference,
-			@FormParam("contenance") final double contenance,
-			@FormParam("designation") final String designation,
-			@FormParam("annee") final int annee
-	) throws BouteilleInexistanteException, BouteilleInvalideException {
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response modifierBouteilles(final Collection<Bouteille> bouteilles)
+			throws BouteilleInexistanteException, BouteilleInvalideException {
 		
-		final Bouteille bouteille = new Bouteille();
-		bouteille.setAnnee(annee);
-		bouteille.setContenance(contenance);
-		bouteille.setDesignation(designation);
-		bouteille.setReference(reference);
-
-		Response reponse = null;
+		Response reponse;
 		
 		try {
 			
-			// Nous tentons de modifier notre bouteille.
-			final Bouteille bouteilleModifiee = bouteilleService.modifierBouteille(bouteille);
+			final List<Bouteille> bouteillesModifiees = bouteilleService.modifierBouteilles(bouteilles);
 			
-			reponse = ok(bouteilleModifiee).build();
+			final GenericEntity<List<Bouteille>> entite = new GenericEntity<List<Bouteille>>(bouteillesModifiees) {};
+			
+			reponse = ok(entite).build();
 			
 		} catch (final BouteilleInexistanteException e) {
-			
-			// Nous n'avons pu modifié une entitée inexistante : 404.
 			reponse = status(NOT_FOUND).build();
-			
-		} catch (final BouteilleInvalideException e) {
-			
-			// Nous n'avons pu modifié une entitée invalide : 400.
-			reponse = status(BAD_REQUEST).build();
-			
+		} catch (final Exception e) {
+			reponse = serverError().build();
 		}
 		
 		return reponse;
 	}
-	
 	@DELETE
 	@Path("/{reference}")
 	public Response supprimerBouteille(
